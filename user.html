@@ -1058,10 +1058,11 @@ function populateData(d) {
   const uidBadge = document.getElementById('uidBadge');
   if (uidBadge) uidBadge.textContent = `UID #${uidNum}`;
 
-  document.getElementById('detailId').textContent = u.id;
+  document.getElementById('detailId').textContent = u.id || localStorage.getItem('fang_user_id') || '—';
   document.getElementById('detailUsername').textContent = u.username;
-  document.getElementById('detailEmail').textContent = u.email || 'None registered';
-  document.getElementById('detailCreated').textContent = new Date(u.created_at).toLocaleDateString();
+  const userEmail = u.email || localStorage.getItem('fang_email') || localStorage.getItem('fang_user_email');
+  document.getElementById('detailEmail').textContent = userEmail || 'None registered';
+  document.getElementById('detailCreated').textContent = u.created_at ? new Date(u.created_at).toLocaleDateString() : 'Verified User';
 
   if (u.is_admin) document.getElementById('adminShortcut').classList.remove('hidden');
 
