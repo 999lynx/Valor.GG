@@ -155,6 +155,8 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
     localStorage.setItem('fang_user', data.username);
     if (data.email) localStorage.setItem('fang_email', data.email);
     if (data.id) localStorage.setItem('fang_user_id', data.id);
+    if (data.plan) localStorage.setItem('fang_user_plan', data.plan);
+    if (data.expires_at) localStorage.setItem('fang_user_expires_at', data.expires_at);
     localStorage.setItem('fang_shop_token', data.token);
     localStorage.setItem('fang_shop_user', data.username);
     localStorage.setItem('fang_is_admin', data.is_admin ? '1' : '0');
