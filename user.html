@@ -475,8 +475,14 @@ kbd { background: rgba(255,255,255,0.08); border: 1px solid var(--border); paddi
             <div class="info-txt" id="detailUsername">—</div>
           </div>
           <div class="info-box">
-            <div class="info-lbl">Bound Email</div>
-            <div class="info-txt" id="detailEmail">—</div>
+            <div class="info-lbl" style="display:flex; justify-content:space-between; align-items:center;">
+              <span>Bound Email</span>
+              <button class="btn-copy" style="padding:2px 7px; font-size:10.5px;" onclick="promptBindEmail()" title="Edit or Link Email">
+                <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+              </button>
+            </div>
+            <div class="info-txt" id="detailEmail" style="font-size:13px;">—</div>
           </div>
           <div class="info-box">
             <div class="info-lbl">Registration Date</div>
@@ -921,6 +927,22 @@ function copyCurrentHwid(btn) {
   const hwid = currentLoadedLicense?.hwid || document.getElementById('currentHwidString')?.textContent?.trim();
   if (hwid && !hwid.includes('Not yet bound') && !hwid.includes('Loading')) {
     copyToClipboard(hwid, btn, 'HWID Copied!');
+  }
+}
+
+function promptBindEmail() {
+  const current = document.getElementById('detailEmail')?.textContent?.trim();
+  const def = (current && !current.includes('None')) ? current : '';
+  const newEmail = prompt('Enter your bound email address:', def);
+  if (newEmail !== null) {
+    const trimmed = newEmail.trim();
+    if (trimmed && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+    localStorage.setItem('fang_email', trimmed);
+    localStorage.setItem('fang_user_email', trimmed);
+    document.getElementById('detailEmail').textContent = trimmed || 'None registered';
   }
 }
 
