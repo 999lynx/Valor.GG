@@ -1170,63 +1170,44 @@ function parseJwt(t) {
 }
 
 async function loadUserData() {
-  const uName = localStorage.getItem('fang_user') || 'User';
-  const tokenPayload = token ? parseJwt(token) : null;
-  const realUuid = tokenPayload?.sub || localStorage.getItem('fang_user_id') || 'Active Session';
-  const isAdmin = tokenPayload?.is_admin === true || localStorage.getItem('fang_is_admin') === '1';
+  try {
+    const data = await api('user-me');
+    if (data && data.success && data.user) {
+      populateData(data);
+      return;
+    }
+  } catch (err) {
+    console.warn('user-me API error:', err);
+  }
 
-  // 1. Fetch Real License Keys from Supabase (Live Edge Function)
-  let userKeys = [];
+  // Fallback to live my-keys endpoint
   try {
     const kRes = await api('my-keys');
-    if (kRes && Array.isArray(kRes.keys)) userKeys = kRes.keys;
-  } catch (err) {
-    console.warn('my-keys query failed:', err);
-  }
-
-  // 2. Resolve Active License from Supabase
-  const activeKey = userKeys.find(k => k.status === 'active') || userKeys[0] || null;
-  let licenseData = null;
-
-  if (activeKey) {
-    licenseData = {
-      plan: activeKey.products?.name ?? (activeKey.expires_at ? 'Timed License' : 'Lifetime Access'),
-      expires_at: activeKey.expires_at || null,
-      hwid: activeKey.hwid || localStorage.getItem('fang_cached_hwid') || null,
-      status: activeKey.status || 'active'
-    };
-  } else {
-    // If no key attached yet
-    const cachedPlan = localStorage.getItem('fang_user_plan');
-    if (cachedPlan) {
-      licenseData = {
-        plan: cachedPlan,
-        expires_at: localStorage.getItem('fang_user_expires_at') || null,
-        hwid: localStorage.getItem('fang_cached_hwid') || null,
-        status: 'active'
+    if (kRes && kRes.success) {
+      const activeKey = kRes.keys?.find(k => k.status === 'active') || kRes.keys?.[0] || null;
+      const u = kRes.user || {
+        id: localStorage.getItem('fang_user_id') || '—',
+        username: localStorage.getItem('fang_user') || 'User',
+        email: localStorage.getItem('fang_email'),
+        uid_number: 1,
+        created_at: new Date().toISOString(),
+        is_admin: localStorage.getItem('fang_is_admin') === '1'
       };
+      populateData({
+        user: u,
+        license: activeKey ? {
+          plan: activeKey.products?.name ?? (activeKey.expires_at ? 'Timed License' : 'Lifetime Access'),
+          expires_at: activeKey.expires_at || null,
+          hwid: activeKey.hwid || null,
+          status: activeKey.status || 'active'
+        } : null,
+        stats: { total_users: 1, total_launches: 1 },
+        hwid_reset: null
+      });
     }
+  } catch (e) {
+    console.error('my-keys fallback error:', e);
   }
-
-  // 3. Compute Sequential UID (1, 2, 3, 4 strictly in registration order)
-  const uidNum = getSequentialUid(uName);
-  const userEmail = tokenPayload?.email || localStorage.getItem('fang_email') || localStorage.getItem('fang_user_email') || null;
-
-  const realData = {
-    user: {
-      id: realUuid,
-      uid_number: uidNum,
-      username: uName,
-      email: userEmail,
-      created_at: new Date().toISOString(),
-      is_admin: isAdmin
-    },
-    license: licenseData,
-    stats: { total_users: 1840, total_launches: 14200 },
-    hwid_reset: null
-  };
-
-  populateData(realData);
 }
 
 function populateData(d) {
