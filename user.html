@@ -219,6 +219,22 @@ a { color: inherit; text-decoration: none; }
 .info-lbl { font-size: 11px; font-weight: 700; color: var(--dimmer); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
 .info-txt { font-size: 14px; font-weight: 600; color: var(--text); font-family: 'JetBrains Mono', monospace; word-break: break-all; }
 
+.btn-copy {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+  color: var(--dim); padding: 5px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; font-family: inherit; flex-shrink: 0;
+}
+.btn-copy svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
+.btn-copy:hover { color: var(--text); background: rgba(255,255,255,0.1); border-color: var(--border-hover); }
+
+.uid-tag {
+  background: rgba(244, 114, 182, 0.12); color: var(--accent);
+  border: 1px solid rgba(244, 114, 182, 0.25);
+  padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 800;
+  font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px;
+}
+
 /* Download Section */
 .dl-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
 .dl-tile {
@@ -420,8 +436,8 @@ kbd { background: rgba(255,255,255,0.08); border: 1px solid var(--border); paddi
         </div>
         <div class="stat-card">
           <div class="stat-lbl">HWID Status</div>
-          <div class="stat-val" id="statHwidStatus" style="font-size:20px;">Locked</div>
-          <div class="stat-tag" id="statHwidSub">Primary device</div>
+          <div class="stat-val" id="statHwidStatus" style="font-size:20px;">—</div>
+          <div class="stat-tag" id="statHwidSub">Hardware Status</div>
         </div>
         <div class="stat-card">
           <div class="stat-lbl">Community Users</div>
@@ -442,8 +458,17 @@ kbd { background: rgba(255,255,255,0.08); border: 1px solid var(--border); paddi
         </div>
         <div class="info-grid">
           <div class="info-box">
-            <div class="info-lbl">Account Identifier (UUID)</div>
-            <div class="info-txt" id="detailId" style="font-size:12px;">—</div>
+            <div class="info-lbl" style="display:flex; justify-content:space-between; align-items:center;">
+              <span>Account Identifier (UUID)</span>
+              <span id="uidBadge" class="uid-tag">UID #—</span>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:4px;">
+              <div class="info-txt" id="detailId" style="font-size:12px;">—</div>
+              <button class="btn-copy" id="btnCopyUuid" onclick="copyDetailUuid(this)" title="Copy Account UUID">
+                <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copy
+              </button>
+            </div>
           </div>
           <div class="info-box">
             <div class="info-lbl">Username</div>
@@ -458,8 +483,17 @@ kbd { background: rgba(255,255,255,0.08); border: 1px solid var(--border); paddi
             <div class="info-txt" id="detailCreated">—</div>
           </div>
           <div class="info-box" style="grid-column: 1 / -1;">
-            <div class="info-lbl">Hardware Lock (HWID)</div>
-            <div class="info-txt" id="detailHwid" style="font-size:12px;">—</div>
+            <div class="info-lbl" style="display:flex; justify-content:space-between; align-items:center;">
+              <span>Hardware Lock (Bound HWID)</span>
+              <span id="hwidLockBadge" class="badge">Unbound</span>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:4px; flex-wrap:wrap;">
+              <div class="info-txt" id="detailHwid" style="font-size:12.5px; word-break:break-all;">Not yet bound</div>
+              <button class="btn-copy" id="btnCopyHwid" onclick="copyDetailHwid(this)" title="Copy Bound HWID">
+                <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copy HWID
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -530,9 +564,15 @@ kbd { background: rgba(255,255,255,0.08); border: 1px solid var(--border); paddi
       </div>
 
       <div class="hwid-banner">
-        <div>
+        <div style="flex:1; min-width:260px;">
           <div style="font-size:11px; color:var(--dimmer); font-weight:700; text-transform:uppercase; margin-bottom:4px;">Currently Registered HWID</div>
-          <div class="hwid-val" id="currentHwidString">Loading…</div>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <div class="hwid-val" id="currentHwidString">Loading…</div>
+            <button class="btn-copy" id="btnCopyCurrentHwid" onclick="copyCurrentHwid(this)" title="Copy HWID">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+          </div>
         </div>
         <div id="hwidStatusContainer"></div>
       </div>
@@ -839,20 +879,124 @@ async function initApp() {
   await loadUserData();
 }
 
+let countdownTimerInterval = null;
+let currentLoadedUser = null;
+let currentLoadedLicense = null;
+
+function copyToClipboard(text, btnElement, successText = 'Copied!') {
+  if (!text || text === '—' || text.startsWith('Not yet bound')) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const origHtml = btnElement.innerHTML;
+    btnElement.innerHTML = `✓ ${successText}`;
+    btnElement.style.borderColor = 'var(--ok)';
+    btnElement.style.color = 'var(--ok)';
+    setTimeout(() => {
+      btnElement.innerHTML = origHtml;
+      btnElement.style.borderColor = '';
+      btnElement.style.color = '';
+    }, 2000);
+  }).catch(() => {
+    prompt('Copy to clipboard (Ctrl+C, Enter):', text);
+  });
+}
+
+function copyDetailUuid(btn) {
+  if (currentLoadedUser?.id) copyToClipboard(currentLoadedUser.id, btn, 'UUID Copied!');
+}
+
+function copyDetailHwid(btn) {
+  if (currentLoadedLicense?.hwid) copyToClipboard(currentLoadedLicense.hwid, btn, 'HWID Copied!');
+  else {
+    const txt = document.getElementById('detailHwid')?.textContent?.trim();
+    if (txt && !txt.includes('Not yet bound')) copyToClipboard(txt, btn, 'HWID Copied!');
+  }
+}
+
+function copyCurrentHwid(btn) {
+  const hwid = currentLoadedLicense?.hwid || document.getElementById('currentHwidString')?.textContent?.trim();
+  if (hwid && !hwid.includes('Not yet bound') && !hwid.includes('Loading')) {
+    copyToClipboard(hwid, btn, 'HWID Copied!');
+  }
+}
+
+function startExpiryCountdown(expiresAt, planName) {
+  if (countdownTimerInterval) clearInterval(countdownTimerInterval);
+  const statExpires = document.getElementById('statExpires');
+  const statPlan = document.getElementById('statPlan');
+  if (!statExpires) return;
+
+  if (!expiresAt) {
+    statExpires.innerHTML = '<span style="color:var(--ok); font-weight:600;">♾️ Lifetime Access (Permanent)</span>';
+    if (statPlan && (!statPlan.textContent || statPlan.textContent === '—')) statPlan.textContent = planName || 'Lifetime VIP';
+    return;
+  }
+
+  const expTime = new Date(expiresAt).getTime();
+  const now = Date.now();
+
+  // If expiration is more than 50 years into the future, treat as Lifetime
+  if (expTime - now > 50 * 365 * 24 * 60 * 60 * 1000) {
+    statExpires.innerHTML = '<span style="color:var(--ok); font-weight:600;">♾️ Lifetime Access (Permanent)</span>';
+    if (statPlan && (!statPlan.textContent || statPlan.textContent === '—')) statPlan.textContent = planName || 'Lifetime VIP';
+    return;
+  }
+
+  function tick() {
+    const diff = expTime - Date.now();
+    if (diff <= 0) {
+      statExpires.innerHTML = '<span style="color:var(--danger); font-weight:700;">❌ License Expired (0s left)</span>';
+      if (statPlan) statPlan.textContent = 'Expired';
+      clearInterval(countdownTimerInterval);
+      return;
+    }
+
+    const totalSeconds = Math.floor(diff / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    let timeStr = '';
+    if (days > 0) {
+      timeStr = `${days}d ${hours}h ${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+    } else if (hours > 0) {
+      timeStr = `${hours}h ${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+    } else {
+      timeStr = `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+    }
+
+    statExpires.innerHTML = `<span style="color:var(--accent); font-weight:700; font-family:'JetBrains Mono',monospace;">⏳ ${timeStr} remaining</span>`;
+  }
+
+  tick();
+  countdownTimerInterval = setInterval(tick, 1000);
+}
+
 async function loadUserData() {
   try {
     const data = await api('user-me');
     populateData(data);
   } catch (err) {
     const u = localStorage.getItem('fang_user') || 'User';
-    document.getElementById('detailUsername').textContent = u;
-    document.getElementById('detailEmail').textContent = 'None registered';
-    document.getElementById('detailId').textContent = 'Active Session';
-    document.getElementById('detailCreated').textContent = 'Verified User';
-    document.getElementById('detailHwid').textContent = 'Locks on first client launch';
-    document.getElementById('statPlan').textContent = 'Lifetime VIP';
-    document.getElementById('statExpires').textContent = 'Lifetime Access';
-    document.getElementById('currentHwidString').textContent = 'Not yet bound';
+    const fakeData = {
+      user: {
+        id: localStorage.getItem('fang_user_id') || '37368803-a724-494f-ae49-44ca0a70de7c',
+        uid_number: 1,
+        username: u,
+        email: null,
+        created_at: new Date().toISOString(),
+        is_admin: localStorage.getItem('fang_is_admin') === '1'
+      },
+      license: {
+        plan: 'Valor.gg — Lifetime VIP',
+        expires_at: null,
+        hwid: localStorage.getItem('fang_cached_hwid') || null,
+        status: 'active'
+      },
+      stats: { total_users: 1840, total_launches: 14200 },
+      hwid_reset: null
+    };
+    populateData(fakeData);
   }
 }
 
@@ -861,21 +1005,63 @@ function populateData(d) {
   const l = d.license;
   const s = d.stats;
 
+  currentLoadedUser = u;
+  currentLoadedLicense = l;
+
   document.getElementById('userName').textContent = u.username;
   document.getElementById('userAv').textContent = u.username[0].toUpperCase();
-  document.getElementById('userPlan').textContent = l ? l.plan : 'VIP Access';
 
-  document.getElementById('statPlan').textContent = l ? l.plan : 'Active License';
-  document.getElementById('statExpires').textContent = l?.expires_at ? `Expires: ${new Date(l.expires_at).toLocaleDateString()}` : 'Lifetime Access';
+  const planName = l ? l.plan : 'No Active Key';
+  document.getElementById('userPlan').textContent = planName;
+  document.getElementById('statPlan').textContent = planName;
+
+  // Real-time Expiration / Live Countdown Timer
+  startExpiryCountdown(l?.expires_at, planName);
+
+  // HWID Status & Locked String
+  const statHwidVal = document.getElementById('statHwidStatus');
+  const statHwidSub = document.getElementById('statHwidSub');
+  const hwidLockBadge = document.getElementById('hwidLockBadge');
+  const detailHwid = document.getElementById('detailHwid');
+  const currentHwidString = document.getElementById('currentHwidString');
+
+  if (l?.hwid) {
+    statHwidVal.innerHTML = '<span style="color:var(--ok);">● Locked</span>';
+    statHwidSub.textContent = 'Hardware bound';
+    if (hwidLockBadge) {
+      hwidLockBadge.className = 'badge active';
+      hwidLockBadge.textContent = 'Bound & Locked';
+    }
+    detailHwid.textContent = l.hwid;
+    detailHwid.style.color = 'var(--ok)';
+    currentHwidString.textContent = l.hwid;
+    currentHwidString.style.color = 'var(--ok)';
+  } else {
+    statHwidVal.innerHTML = '<span style="color:var(--warn);">○ Unbound</span>';
+    statHwidSub.textContent = 'Locks on first client launch';
+    if (hwidLockBadge) {
+      hwidLockBadge.className = 'badge pending';
+      hwidLockBadge.textContent = 'Unbound (Auto-lock)';
+    }
+    const notBoundMsg = 'Not yet bound (auto-binds on first client injection)';
+    detailHwid.textContent = notBoundMsg;
+    detailHwid.style.color = 'var(--dim)';
+    currentHwidString.textContent = notBoundMsg;
+    currentHwidString.style.color = 'var(--dim)';
+  }
+
   document.getElementById('statTotalUsers').textContent = s?.total_users ? s.total_users.toLocaleString() + '+' : '1,840+';
   document.getElementById('statTotalLaunches').textContent = s?.total_launches ? s.total_launches.toLocaleString() + '+' : '14,200+';
+
+  // Account Identifier (UUID & Sequential UID)
+  const uidNum = u.uid_number || 1;
+  const uidBadge = document.getElementById('uidBadge');
+  if (uidBadge) uidBadge.textContent = `UID #${uidNum}`;
 
   document.getElementById('detailId').textContent = u.id;
   document.getElementById('detailUsername').textContent = u.username;
   document.getElementById('detailEmail').textContent = u.email || 'None registered';
   document.getElementById('detailCreated').textContent = new Date(u.created_at).toLocaleDateString();
-  document.getElementById('detailHwid').textContent = l?.hwid || 'Not yet bound (locks on first launch)';
-  document.getElementById('currentHwidString').textContent = l?.hwid || 'Not yet bound (locks on first launch)';
 
   if (u.is_admin) document.getElementById('adminShortcut').classList.remove('hidden');
 
@@ -896,19 +1082,19 @@ function populateData(d) {
   const deni = document.getElementById('hwidStateDenied');
   const badgeContainer = document.getElementById('hwidStatusContainer');
 
-  [form, pend, appr, deni].forEach(el => el.classList.add('hidden'));
-  badgeContainer.innerHTML = '';
+  [form, pend, appr, deni].forEach(el => el && el.classList.add('hidden'));
+  if (badgeContainer) badgeContainer.innerHTML = '';
 
   if (!reset) {
-    form.classList.remove('hidden');
+    if (form) form.classList.remove('hidden');
   } else {
-    badgeContainer.innerHTML = `<span class="badge ${reset.status}">${reset.status}</span>`;
-    if (reset.status === 'pending') pend.classList.remove('hidden');
-    else if (reset.status === 'approved') {
+    if (badgeContainer) badgeContainer.innerHTML = `<span class="badge ${reset.status}">${reset.status}</span>`;
+    if (reset.status === 'pending' && pend) pend.classList.remove('hidden');
+    else if (reset.status === 'approved' && appr) {
       appr.classList.remove('hidden');
       checkHwidApprovalNotification(reset);
     }
-    else if (reset.status === 'denied') deni.classList.remove('hidden');
+    else if (reset.status === 'denied' && deni) deni.classList.remove('hidden');
   }
 }
 
