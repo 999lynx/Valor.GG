@@ -936,7 +936,11 @@ function signOut() {
 // ── Boot ──
 (function() {
   checkEmailVerificationUrl();
-  if (token) initApp();
+  if (token) {
+    initApp();
+  } else {
+    location.href = '/login';
+  }
 })();
 
 async function initApp() {
