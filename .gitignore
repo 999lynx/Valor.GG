@@ -2,3 +2,6 @@
 dashboard/
 shop/
 user/
+
+.vercel
+.env*
