@@ -1,0 +1,4 @@
+# Exclude old subfolder structure (replaced by flat root files)
+dashboard/
+shop/
+user/
